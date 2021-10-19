@@ -3,7 +3,7 @@
     <node name="kalman_filter"    pkg="me134" type="kalman_filter.py" output="screen" />
     <node name="motor_controller" pkg="me134" type="motor_controller" output="screen" />
 
-    <node name="pid"              pkg="me134" type="pid.py"           output="screen" >
+    <node name="main_controller"  pkg="me134" type="pid.py"           output="screen" >
         <param name="Kp" value="5.0" />
         <param name="Ki" value="0.0" />
         <param name="Kd" value="0.0" />
