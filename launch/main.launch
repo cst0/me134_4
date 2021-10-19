@@ -1,0 +1,20 @@
+<launch>
+    <node name="imu_node"         pkg="me134" type="imu_node.py"      output="screen" />
+    <node name="kalman_filter"    pkg="me134" type="kalman_filter.py" output="screen" />
+    <node name="motor_controller" pkg="me134" type="motor_controller" output="screen" />
+
+    <node name="pid"              pkg="me134" type="pid.py"           output="screen" >
+        <param name="Kp" value="5.0" />
+        <param name="Ki" value="0.0" />
+        <param name="Kd" value="0.0" />
+
+        <param name="upper_limit" value="10.0" />
+        <param name="lower_limit" value="-10.0" />
+
+        <param name="cutoff_frequency" value="20.0" />
+        <param name="target_loop_freqency" value="50.0" />
+        <param name="min_loop_frequency" value="40.0" />
+    </node>
+
+    <node name="sonar_node"       pkg="me134" type="sonar_node.py"    output="screen" />
+</launch>
