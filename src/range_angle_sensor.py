@@ -5,6 +5,8 @@ from me134.msg import SegwayTilt
 from ddynamic_reconfigure_python.ddynamic_reconfigure import DDynamicReconfigure
 from numpy.random import normal as random  # type:ignore
 
+from math import acos, sqrt, cos, sin, asin
+
 SIMULATION_MODE = True
 
 
@@ -16,6 +18,7 @@ class RangeAnglePublisher(object):
         self.query_hz = query_hz
         self.query_timer = None
 
+        self.sensor_height, self.sensor_xdist, self.sensor_angle = (0,0,0)
         self.ddynrec = DDynamicReconfigure("RangeAngleSensorDynRec")
         self.ddynrec.add_variable(
             "sensor_height", "sensor height from pivot point", 0.05, -20, 20
@@ -48,10 +51,36 @@ class RangeAnglePublisher(object):
 
     def get_data(self):
         if SIMULATION_MODE:
-            return random()
+            return float(random())
+        return 0.0
 
     def publish_data(self, event):
         del event
+        # start by finding the distance between the pivot point and the sensor using user-input data
+        sensor_pivot_dist = sqrt(self.sensor_xdist ** 2 + self.sensor_height ** 2)
+        # with all three sides, law of sines allows us to find the angle between sensor height and hypotenuse.
+        # we'll call that gamma
+        a, b, c = self.sensor_xdist, self.sensor_height, sensor_pivot_dist
+        gamma = acos((c**2 - a**2 - b**2)/(-2*a*b))
+        # we have that top angle. That plus the user-specified angle is the overall top angle of the triangle
+        # formed between the pivot, sensor, and measured point.
+        # call that theta
+        theta = gamma + self.sensor_angle
+        # to make use of theta we'll need to know the distance between the pivot and the measured point.
+        # a quick law of cosines will do that given our measured distance.
+        # We'll call the measured distance d, the hypotenuse from earlier h, and the computed length l.
+        h = sensor_pivot_dist
+        d = self.get_data()
+        L = sqrt(h ** 2 + d ** 2 - 2 * h * d * cos(theta))
+        # final step: we have the angle theta and its opposite side, and have
+        # the side opposite alpha which is our goal. Law of sines will get us
+        # alpha, which is the overall tilt of the platform.
+        alpha = asin((d*sin(theta))/L)
+
+        msg = SegwayTilt()
+        msg.computed_angle_rads = alpha
+
+        self.angle_publisher.publish(msg)
 
     def shutdown(self):
         self.angle_publisher.unregister()
