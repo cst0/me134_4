@@ -3,8 +3,8 @@
   <link name="pivot_link" />
 
   <joint name="tilt_joint" type="revolute">
-    <axis xyz="0 1 0" />
     <parent link="base_link"/>
+    <axis xyz="0 1 0" />
     <child link="pivot_link"/>
     <origin xyz="0 0 0" rpy="0 0 0" />
     <limit lower="-1.57" upper="1.57" effort="1000" velocity="100" />
