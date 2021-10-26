@@ -56,8 +56,8 @@ add_message_files(
   CoMState.msg
   Controller.msg
   SetPoint.msg
+  SegwayTilt.msg
   PIDOutput.msg
-
 )
 
 ## Generate services in the 'srv' folder
