@@ -8,7 +8,7 @@ from me134.msg import SegwayTilt
 
 class KalmanFilter(object):
     def __init__(self):
-        self.ddynrec = DDynamicReconfigure("RangeAngleSensorDynRec")
+        self.ddynrec = DDynamicReconfigure("")
 
         self.segway_tilt_input_topics = ""
         self.ddynrec.add_variable(
@@ -21,6 +21,7 @@ class KalmanFilter(object):
         self.update_inputs_trigger = rospy.Subscriber(
             "kalman_update_input_sources", Empty, self.update_inputs
         )
+        self.filtered_pub = rospy.Publisher('filtered_tilt', SegwayTilt, queue_size=5)
         self.tilt_subscribers = {}
         self.tilt_data = {}
         self.update_inputs(Empty())
@@ -39,6 +40,7 @@ class KalmanFilter(object):
 
     def update_inputs(self, msg):
         del msg
+        rospy.loginfo("told to update input sources ["+self.segway_tilt_input_topics+"]")
         # for all possible input sources, strip whitespace and split on commas
         tilt_topics = self.segway_tilt_input_topics.replace(" ", "").split(",")
         valid_tilt_topics = self.query_topics(tilt_topics, SegwayTilt)
@@ -64,14 +66,15 @@ class KalmanFilter(object):
 
     def create_input_subscribers(self, tilt_topics):
         for t in tilt_topics:
+            rospy.loginfo('Creating subscriber on topic '+t)
             self.tilt_subscribers[t] = rospy.Subscriber(t, SegwayTilt, self.tilt_cb)
 
     def tilt_cb(self, msg):
         pass
 
     def shutdown(self):
-        pass
-
+        self.delete_input_subscribers()
+        self.filtered_pub.unregister()
 
 def main():
     rospy.init_node("tilt_kalman_filter", anonymous=False)

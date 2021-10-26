@@ -18,7 +18,7 @@ class MainController(object):
     def __init__(self):
         self.current_tilt_state = CoMState()
         self.current_set_point = SetPoint()
-        self.ddynrec = DDynamicReconfigure("MainControllerDynRec")
+        self.ddynrec = DDynamicReconfigure("")
         self.dropped_hz_rate = 0
         self.last_timesteps = []
 

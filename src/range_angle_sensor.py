@@ -13,13 +13,13 @@ SIMULATION_MODE = True
 class RangeAnglePublisher(object):
     def __init__(self, query_hz=30):
         self.angle_publisher = rospy.Publisher(
-            "distance_angle_measurement", SegwayTilt, queue_size=5
+            "lidar_tilt", SegwayTilt, queue_size=5
         )
         self.query_hz = query_hz
         self.query_timer = None
 
         self.sensor_height, self.sensor_xdist, self.sensor_angle = (0,0,0)
-        self.ddynrec = DDynamicReconfigure("RangeAngleSensorDynRec")
+        self.ddynrec = DDynamicReconfigure("")
         self.ddynrec.add_variable(
             "sensor_height", "sensor height from pivot point", 0.05, -20, 20
         )
