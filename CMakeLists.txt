@@ -54,6 +54,7 @@ find_package(catkin REQUIRED COMPONENTS
 add_message_files(
   FILES
   CoMState.msg
+  Controller.msg
   SetPoint.msg
   PIDOutput.msg
 
