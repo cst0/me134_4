@@ -98,10 +98,15 @@ class MainController(object):
         pubmsg.left_wheel, pubmsg.right_wheel = self.compute_wheel_response(
             target_response
         )
+        turn_rads = 0 if self.__dict__["enable_turning"] else self.current_set_point.rot_vel
+        pubmsg.left_wheel, pubmsg.right_wheel = self.compute_wheel_turn(pubmsg.left_wheel, pubmsg.right_wheel, turn_rads)
         pubmsg.tail_com = self.compute_tail_response(target_response)
         self.output_pub.publish()
 
     def compute_wheel_response(self, target_response):
+        return 0.0, 0.0
+
+    def compute_wheel_turn(self, left, right, turn_rads):
         return 0.0, 0.0
 
     def compute_tail_response(self, target_response):
