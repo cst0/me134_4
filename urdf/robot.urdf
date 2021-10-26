@@ -1,0 +1,123 @@
+<robot name="robot">
+  <link name="base_link" />
+  <link name="pivot_link" />
+
+  <joint name="tilt_joint" type="revolute">
+    <axis xyz="0 1 0" />
+    <parent link="base_link"/>
+    <child link="pivot_link"/>
+    <origin xyz="0 0 0" rpy="0 0 0" />
+    <limit lower="-1.57" upper="1.57" effort="1000" velocity="100" />
+  </joint>
+
+  <link name="tail_link_1" />
+  <link name="tail_com_1" />
+  <link name="tail_link_2" />
+  <link name="tail_com_2" />
+  <link name="tail_link_3" />
+  <link name="tail_com_3" />
+  <!--link name="tail_com" /-->
+
+  <joint name="tail_base" type="revolute">
+    <parent link="pivot_link"/>
+    <axis xyz="0 1 0" />
+    <origin xyz="-0.5 0 0.55" rpy="0 0 0" />
+    <child link="tail_link_1"/>
+    <limit lower="-1.57" upper="1.57" effort="1000" velocity="100"/>
+  </joint>
+
+  <joint name="tail_mid_joint" type="revolute">
+    <parent link="tail_link_1"/>
+    <axis xyz="0 1 0" />
+    <origin xyz="-0.5 0 0" rpy="0 0 0" />
+    <child link="tail_link_2"/>
+    <limit lower="-1.57" upper="1.57" effort="1000" velocity="100"/>
+  </joint>
+
+  <joint name="tail_tip_joint" type="revolute">
+    <parent link="tail_link_2"/>
+    <axis xyz="0 1 0" />
+    <origin xyz="-0.5 0 0" rpy="0 0 0" />
+    <child link="tail_link_3"/>
+    <limit lower="-1.57" upper="1.57" effort="1000" velocity="100"/>
+  </joint>
+
+  <joint name="tail_com_mount_1" type="fixed">
+    <parent link="tail_link_1"/>
+    <origin xyz="-0.25 0 0" rpy="0 0 0" />
+    <child link="tail_com_1"/>
+    <limit lower="-1.57" upper="1.57" effort="1000" velocity="100"/>
+  </joint>
+
+  <joint name="tail_com_mount_2" type="fixed">
+    <parent link="tail_link_2"/>
+    <origin xyz="-0.25 0 0" rpy="0 0 0" />
+    <child link="tail_com_2"/>
+    <limit lower="-1.57" upper="1.57" effort="1000" velocity="100"/>
+  </joint>
+
+  <joint name="tail_com_mount_3" type="fixed">
+    <parent link="tail_link_3"/>
+    <origin xyz="-0.25 0 0" rpy="0 0 0" />
+    <child link="tail_com_3"/>
+    <limit lower="-1.57" upper="1.57" effort="1000" velocity="100"/>
+  </joint>
+
+  <link name="torso_link" />
+  <link name="upper_arm_link_left" />
+  <link name="upper_arm_link_right" />
+  <link name="lower_arm_link_left" />
+  <link name="lower_arm_link_right" />
+  <!--link name="neck_link" /-->
+  <link name="head_link" />
+
+  <joint name="torso_joint" type="fixed">
+    <parent link="pivot_link"/>
+    <origin xyz="0 0 1" rpy="0 0 0" />
+    <child link="torso_link"/>
+    <limit lower="-1.57" upper="1.57" effort="1000" velocity="100"/>
+  </joint>
+
+  <joint name="shoulder_joint_left" type="revolute">
+    <parent link="torso_link"/>
+    <origin xyz="0 0.25 0" rpy="0 0 0" />
+    <axis xyz="0 0 1" />
+    <child link="upper_arm_link_left"/>
+    <limit lower="-1.57" upper="1.57" effort="1000" velocity="100"/>
+  </joint>
+
+  <joint name="shoulder_joint_right" type="revolute">
+    <parent link="torso_link"/>
+    <origin xyz="0 -0.25 0" rpy="0 0 4.71" />
+    <axis xyz="0 0 1" />
+    <child link="upper_arm_link_right"/>
+    <limit lower="-1.57" upper="1.57" effort="1000" velocity="100"/>
+  </joint>
+
+  <joint name="elbow_joint_right" type="revolute">
+    <parent link="upper_arm_link_right"/>
+    <origin xyz="0.25 0 0" rpy="0 0 0" />
+    <axis xyz="0 1 0" />
+    <child link="lower_arm_link_right"/>
+    <limit lower="-1.57" upper="1.57" effort="1000" velocity="100"/>
+  </joint>
+
+  <joint name="elbow_joint_left" type="revolute">
+    <parent link="upper_arm_link_left"/>
+    <origin xyz="0 0.25 0" rpy="0 0 0" />
+    <axis xyz="1 0 0" />
+    <child link="lower_arm_link_left"/>
+    <limit lower="-1.57" upper="1.57" effort="1000" velocity="100"/>
+  </joint>
+
+  <joint name="head_nod_joint" type="revolute">
+    <parent link="torso_link"/>
+    <origin xyz="0 0 0.15" rpy="0 0 0" />
+    <axis xyz="0 1 0" />
+    <child link="head_link"/>
+    <limit lower="-1.57" upper="1.57" effort="1000" velocity="100"/>
+  </joint>
+
+
+</robot>
+
