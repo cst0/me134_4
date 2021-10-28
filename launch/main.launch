@@ -9,7 +9,6 @@
     <node name="kalman_filter"    pkg="me134" type="kalman_filter.py" output="screen" >
         <param name="segway_tilt_input_topics" value="imu_tilt,lidar_tilt" />
     </node>
-    <node name="motor_controller" pkg="me134" type="motor_controller" output="screen" />
 
     <node name="tilt_pid"  pkg="me134" type="main_controller.py"           output="screen" >
         <param name="Kp" value="5.0" />
