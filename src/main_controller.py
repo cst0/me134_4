@@ -3,7 +3,7 @@
 import rospy
 from enum import Enum
 from ddynamic_reconfigure_python.ddynamic_reconfigure import DDynamicReconfigure
-from me134.msg import CoMState, SetPoint, PIDOutput
+from me134.msg import SegwayTilt, SetPoint, PIDOutput
 
 class Wheel(Enum):
     left=0,
@@ -16,7 +16,7 @@ WHEEL_PCA_PORTS = {
 
 class MainController(object):
     def __init__(self):
-        self.current_tilt_state = CoMState()
+        self.current_tilt_state = SegwayTilt()
         self.current_set_point = SetPoint()
         self.ddynrec = DDynamicReconfigure("")
         self.dropped_hz_rate = 0
@@ -43,9 +43,9 @@ class MainController(object):
         self.add_variables_to_self()
         self.ddynrec.start(self.dyn_rec_callback)
 
-        self.pid_sub    = rospy.Subscriber("pid_target", SetPoint,  self.pid_target_cb, queue_size=1)
-        self.tilt_sub   = rospy.Subscriber("tilt_state", CoMState,  self.tilt_state_cb, queue_size=1)
-        self.output_pub = rospy.Publisher("pid_output",  PIDOutput, queue_size=1)
+        self.pid_sub    = rospy.Subscriber("pid_target", SetPoint,   self.pid_target_cb, queue_size=1)
+        self.tilt_sub   = rospy.Subscriber("tilt_state", SegwayTilt, self.tilt_state_cb, queue_size=1)
+        self.output_pub = rospy.Publisher("pid_output",  PIDOutput,  queue_size=1)
         self.pidloop    = rospy.Timer(rospy.Duration(self.__dict__['target_loop_freqency']), self.pidloop_cb)
         # fmt:on
 
@@ -67,7 +67,7 @@ class MainController(object):
             self.__dict__[var_name] = config[var_name]
         return config
 
-    def tilt_state_cb(self, msg: CoMState):
+    def tilt_state_cb(self, msg: SegwayTilt):
         self.current_tilt_state = msg
 
     def pid_target_cb(self, msg: SetPoint):
