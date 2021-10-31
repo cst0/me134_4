@@ -58,6 +58,7 @@ add_message_files(
   SetPoint.msg
   SegwayTilt.msg
   PIDOutput.msg
+  WheelState.msg
 )
 
 ## Generate services in the 'srv' folder

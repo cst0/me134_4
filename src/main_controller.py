@@ -23,14 +23,16 @@ class MainController(object):
         self.last_timesteps = []
 
         # fmt:off
-        self.ddynrec.add_variable("Kp",                   "Kp",          5.0,   -20, 20)
-        self.ddynrec.add_variable("Ki",                   "Ki",          0.0,   -20, 20)
-        self.ddynrec.add_variable("Kd",                   "Kd",          0.0,   -20, 20)
-        self.ddynrec.add_variable("upper_com_limit",      "up com lim",  10.0,  -20, 20)
-        self.ddynrec.add_variable("lower_com_limit",      "up com lim",  -10.0, -20, 20)
-        self.ddynrec.add_variable("target_loop_freqency", "target hz",   50.0,  -20, 20)
-        self.ddynrec.add_variable("min_loop_frequency",   "err if less", 40.0,  -20, 20)
-        self.ddynrec.add_variable("ki_data_length",       "err if less", 10.0,  -20, 20)
+        self.ddynrec.add_variable("Kp",                   "Kp",                         5.0,   -20, 20)
+        self.ddynrec.add_variable("Ki",                   "Ki",                         0.0,   -20, 20)
+        self.ddynrec.add_variable("Kd",                   "Kd",                         0.0,   -20, 20)
+        self.ddynrec.add_variable("upper_com_limit",      "up com lim",                 10.0,  -20, 20)
+        self.ddynrec.add_variable("lower_com_limit",      "up com lim",                 -10.0, -20, 20)
+        self.ddynrec.add_variable("target_loop_freqency", "target hz",                  50.0,  -20, 20)
+        self.ddynrec.add_variable("min_loop_frequency",   "err if less",                40.0,  -20, 20)
+        self.ddynrec.add_variable("ki_data_length",       "how long is our Ki window?", 10.0,  -20, 20)
+
+        self.ddynrec.add_variable("resting_tilt",         "at what angle should we be attempting when balancing?", 10.0,  -20, 20)
 
         self.ddynrec.add_variable("wheel_radsec",          "Wheel radians per second", 10.0,  -20, 20)
         self.ddynrec.add_variable("wheel_pwm_ratio",       "?? pwm = 1 rad/second",    10.0,  -20, 20)

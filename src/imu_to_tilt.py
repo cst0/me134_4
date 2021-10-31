@@ -19,6 +19,7 @@ class ImuToTilt(object):
     def imu_cb(self, msg: Imu):
         pose = self.imu_to_pose(msg)
         tilt = SegwayTilt()
+        tilt.source = 'imu_gyro'
         tilt.radians = euler_from_quaternion([
             pose.pose.orientation.x,
             pose.pose.orientation.y,
