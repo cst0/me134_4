@@ -89,10 +89,10 @@ class ServoController(object):
 
         # send pwm values
         if self.pca is not None:
-            self.pca.channels[CHEST].duty_cycle       = chest
-            self.pca.channels[LEFT_ELBOW].duty_cycle  = left_elbow
-            self.pca.channels[RIGHT_ELBOW].duty_cycle = right_elbow
-            self.pca.channels[HEAD].duty_cycle        = head
+            self.pca.channels[CHEST].duty_cycle       = int(chest)
+            self.pca.channels[LEFT_ELBOW].duty_cycle  = int(left_elbow)
+            self.pca.channels[RIGHT_ELBOW].duty_cycle = int(right_elbow)
+            self.pca.channels[HEAD].duty_cycle        = int(head)
         # fmt:on
 
 def main():
