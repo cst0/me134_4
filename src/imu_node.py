@@ -23,7 +23,7 @@ class ImuNode(object):
             self.imu = MPU9250.MPU9250(bus, address) #type:ignore
             self.imu.begin()
 
-        self.imu_pub = rospy.Publisher('imu_pub', Imu, queue_size=3)
+        self.imu_pub = rospy.Publisher('imu_raw', Imu, queue_size=3)
 
     def to_quaternion(self, yaw, pitch, roll):
         cy = cos(yaw * 0.5)
@@ -89,3 +89,6 @@ def main():
     rospy.init_node('imu_node', anonymous=False)
     imu = ImuNode()
     imu.loop()
+
+if __name__ == '__main__':
+    main()

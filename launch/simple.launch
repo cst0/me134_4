@@ -1,0 +1,25 @@
+<launch>
+    <!--arg name="model" default="$(find me134)/urdf/robot.urdf"/>
+    <param name="robot_description" command="$(find xacro)/xacro.py $(arg model)" />
+    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" /-->
+
+    <node name="imu_node"         pkg="me134" type="imu_node.py"      output="screen" />
+    <node name="imu_tilt"         pkg="me134" type="imu_to_tilt.py"      output="screen" />
+    <node name="kalman_filter"    pkg="me134" type="kalman_filter.py" output="screen" >
+        <param name="segway_tilt_input_topics" value="imu_tilt,lidar_tilt" />
+    </node>
+
+    <node name="simple_controller"  pkg="me134" type="simple_controller.py" output="screen" >
+        <param name="Kp" value="5.0" />
+        <param name="tilt_goal" value="5.0" />
+        <param name="servo_min_pwm" value="0.0" />
+        <param name="servo_max_pwm" value="0.0" />
+    </node>
+
+    <node name="servo_hat_commander"  pkg="me134" type="servo_hat_commander.py" output="screen" >
+        <param name="servo_min_pwm" value="0.0" />
+        <param name="servo_max_pwm" value="0.0" />
+    </node>
+
+
+</launch>

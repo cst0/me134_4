@@ -18,10 +18,8 @@ HEAD        = 11
 class ServoController(object):
     def __init__(self):
         rospy.init_node("ServoController", anonymous=False)
-        rospy.Subscriber("wheel_state", WheelState, self.wheel_state_cb)
-        rospy.Subscriber("torso_control", TorsoState, self.torso_control_cb)
-
         self.ddynrec = DDynamicReconfigure("")
+
         self.servo_min_pwm: int = 0
         self.servo_max_pwm: int = 0
         self.ddynrec.add_variable("servo_min_pwm", "servo_min_pwm", 0, 0, 2 ** 16)
@@ -41,13 +39,15 @@ class ServoController(object):
             self.i2c_bus = busio.I2C(SCL, SDA)
             self.pca = PCA9685(self.i2c_bus)
             self.pca.frequency = 60
-            self.pca.channels[0].duty_cycle = 0x7FFF
 
             self.simulation_mode = False
         except ImportError:
             print(
                 "Could not set up hardware dependencies. Assuming we're in sim mode and going from here."
             )
+        rospy.Subscriber("wheel_state", WheelState, self.wheel_state_cb)
+        rospy.Subscriber("torso_control", TorsoState, self.torso_control_cb)
+
 
     def add_variables_to_self(self):
         var_names = self.ddynrec.get_variable_names()

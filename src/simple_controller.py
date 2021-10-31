@@ -17,10 +17,8 @@ class SimpleBalanceController(object):
 
         self.servo_min_pwm:int = 0
         self.servo_max_pwm:int = 0
-        self.servo_def_pwm:int = 0
         self.ddynrec.add_variable("servo_min_pwm", "servo_min_pwm", 0, 0, 2**16)
         self.ddynrec.add_variable("servo_max_pwm", "servo_max_pwm", 0, 0, 2**16)
-        self.ddynrec.add_variable("servo_def_pwm", "servo_def_pwm", 0, 0, 2**16)
 
         self.add_variables_to_self()
         self.ddynrec.start(self.dyn_rec_callback)
@@ -65,3 +63,12 @@ class SimpleBalanceController(object):
         wheel_msg.left_pwm = self.servo_position
         wheel_msg.right_pwm = self.servo_position
         self.wheel_goal.publish(wheel_msg)
+
+def main():
+    SimpleBalanceController()
+    rospy.loginfo("simple controller ready to go!")
+    rospy.spin()
+    rospy.loginfo("simple controller shutting down")
+
+if __name__ == '__main__':
+    main()

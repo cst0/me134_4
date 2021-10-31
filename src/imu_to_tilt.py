@@ -1,48 +1,44 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
+NO_TF = True # hack for now: hard-code tf
+TILT_AXIS = 1
 
 import rospy
-import tf2_ros
-from tf.transformations import euler_from_quaternion, quaternion_multiply
+if not NO_TF:
+    import tf2_ros
+from tf.transformations import euler_from_quaternion, quaternion_from_euler, quaternion_multiply, quaternion_about_axis
 from sensor_msgs.msg import Imu
-from geometry_msgs.msg import PoseStamped
+from geometry_msgs.msg import PoseStamped, Quaternion
 from me134.msg import SegwayTilt
 
 
 class ImuToTilt(object):
     def __init__(self):
-        self.imu_sub = rospy.Subscriber("imu_input", Imu, self.imu_cb, queue_size=5)
+        self.imu_sub = rospy.Subscriber("imu_raw", Imu, self.imu_cb, queue_size=5)
         self.tilt_pub = rospy.Publisher("imu_tilt", SegwayTilt, queue_size=5)
 
-        self.tf_buffer = tf2_ros.Buffer()
-        self.tf_listener = tf2_ros.TransformListener(self.tf_buffer)
+        if not NO_TF:
+            self.tf_buffer = tf2_ros.Buffer()
+            self.tf_listener = tf2_ros.TransformListener(self.tf_buffer)
 
-    def imu_cb(self, msg: Imu):
-        pose = self.imu_to_pose(msg)
+    def imu_cb(self, msg):
         tilt = SegwayTilt()
         tilt.source = 'imu_gyro'
         tilt.radians = euler_from_quaternion([
-            pose.pose.orientation.x,
-            pose.pose.orientation.y,
-            pose.pose.orientation.z,
-            pose.pose.orientation.w,
-            ], "xyzw")
+            msg.orientation.x,
+            msg.orientation.y,
+            msg.orientation.z,
+            msg.orientation.w,
+            ])[TILT_AXIS]
         tilt.radians_vel = msg.angular_velocity.y
 
         self.tilt_pub.publish(tilt)
 
-    def imu_to_pose(self, msg: Imu):
-        p = PoseStamped()
-        p.header = msg.header
-        imu_transformation = self.tf_buffer("base_link", "imu", rospy.Time())
-        p.pose.orientation = quaternion_multiply(
-            imu_transformation.transform.orientation, msg.orientation
-        )
-        return p
-
-
 def main():
-    itt = ImuToTilt()
-    pass
+    rospy.init_node('imu_to_tilt')
+    ImuToTilt()
+    rospy.loginfo("imu tilt converter start")
+    rospy.spin()
+    rospy.loginfo("imu tilt converter shutting down")
 
 
 if __name__ == "__main__":
