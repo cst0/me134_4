@@ -22,8 +22,8 @@ class ServoController(object):
 
         self.servo_min_pwm: int = 0
         self.servo_max_pwm: int = 0
-        self.ddynrec.add_variable("servo_min_pwm", "servo_min_pwm", 0, 0, 2 ** 16)
-        self.ddynrec.add_variable("servo_max_pwm", "servo_max_pwm", 0, 0, 2 ** 16)
+        self.ddynrec.add_variable("servo_min_pwm", "servo_min_pwm", 0, 0, 2 ** 12)
+        self.ddynrec.add_variable("servo_max_pwm", "servo_max_pwm", 0, 0, 2 ** 12)
 
         self.add_variables_to_self()
         self.ddynrec.start(self.dyn_rec_callback)

@@ -71,10 +71,10 @@ class KalmanFilter(object):
             except Exception as e:
                 rospy.logerr(e)
 
-        if len(valid_topics) == 0:
+        while len(valid_topics) == 0 or valid_topics == None:
             rospy.logerr("Didn't see any valid topics to subscribe to. Waiting 5 secs before trying again.")
             time.sleep(5)
-            return self.query_topics(topic_list, msg_type)
+            valid_topics = self.query_topics(topic_list, msg_type)
 
         return valid_topics
 
@@ -100,7 +100,12 @@ class KalmanFilter(object):
 
         if self.kalman is not None:
             self.kalman.predict()
-            self.kalman.update(np.array(measurements).reshape((len(measurements), 1)))
+            #rospy.loginfo(measurements)
+            try:
+                self.kalman.update(np.array(measurements).reshape((len(measurements), 1)))
+            except ValueError as e:
+                rospy.logwarn("tried calling filtering before data received")
+                return  # no measurements yet
             filtered = SegwayTilt()
             filtered.source = 'filter'
             filtered.radians = self.kalman.x[0]

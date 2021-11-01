@@ -13,12 +13,12 @@ class SimpleBalanceController(object):
         self.tilt_goal:float = 0.0
         self.kp:float = 1.0
         self.ddynrec.add_variable("tilt_goal", "tilt_goal", 0.0, -3.14, 3.14)
-        self.ddynrec.add_variable("kp", "kp", 0.0, -50, 50)
+        self.ddynrec.add_variable("kp", "kp", 0.0, -2**16, 2**16)
 
         self.servo_min_pwm:int = 0
         self.servo_max_pwm:int = 0
-        self.ddynrec.add_variable("servo_min_pwm", "servo_min_pwm", 0, 0, 2**16)
-        self.ddynrec.add_variable("servo_max_pwm", "servo_max_pwm", 0, 0, 2**16)
+        self.ddynrec.add_variable("servo_min_pwm", "servo_min_pwm", 0, 0, 2**12)
+        self.ddynrec.add_variable("servo_max_pwm", "servo_max_pwm", 0, 0, 2**12)
 
         self.add_variables_to_self()
         self.ddynrec.start(self.dyn_rec_callback)
@@ -53,11 +53,11 @@ class SimpleBalanceController(object):
         self.error_publisher.publish(err_msg)
 
         # find range of acceptable pwm values around the center, multiply by kp, add, check if valid, execute.
-        proposed_servo_change = int(self.kp * err * ((self.servo_max_pwm - self.servo_min_pwm)/2))
-        proposed_servo_change *= -1 if err < 0 else 1
+        proposed_servo_change = (self.kp * err) + 2000
+        #rospy.loginfo("<" if proposed_servo_change < 2000 else ">")
 
-        self.servo_position = max(self.servo_min_pwm, self.servo_position + proposed_servo_change)
-        self.servo_position = min(self.servo_max_pwm, self.servo_position + proposed_servo_change)
+        self.servo_position = max(self.servo_min_pwm, proposed_servo_change)
+        self.servo_position = min(self.servo_max_pwm, self.servo_position)
 
         wheel_msg = WheelState()
         wheel_msg.left_pwm =  int(self.servo_position)

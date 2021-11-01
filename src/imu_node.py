@@ -2,7 +2,7 @@
 
 import rospy
 
-from math import cos, sin
+from math import cos, sin, radians
 from sensor_msgs.msg import Imu
 from numpy.random import normal as random #type:ignore
 
@@ -64,7 +64,11 @@ class ImuNode(object):
                 msg.linear_acceleration.y = self.imu.AccelVals[1]
                 msg.linear_acceleration.z = self.imu.AccelVals[2]
 
-                q = self.to_quaternion(self.imu.yaw, self.imu.pitch, self.imu.roll)
+                q = self.to_quaternion(
+                        radians(self.imu.yaw), 
+                        radians(self.imu.pitch), 
+                        radians(self.imu.roll)
+                    )
 
                 msg.orientation.x = q[0]
                 msg.orientation.y = q[1]
