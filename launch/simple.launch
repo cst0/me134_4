@@ -13,7 +13,7 @@
     </node>
 
     <node name="kalman_filter"    pkg="me134" type="kalman_filter.py" output="screen" >
-        <param name="segway_tilt_input_topics" value="imu_tilt,range_tilt" />
+        <param name="segway_tilt_input_topics" value="imu_tilt" />
     </node>
 
     <node name="simple_controller"  pkg="me134" type="simple_controller.py" output="screen" >

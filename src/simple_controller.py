@@ -27,7 +27,9 @@ class SimpleBalanceController(object):
         self.error_publisher = rospy.Publisher('controller/error', Float32, queue_size=5)
         self.wheel_goal = rospy.Publisher('wheel_state', WheelState, queue_size=5)
 
-        self.servo_position = ((self.servo_max_pwm - self.servo_min_pwm)/2)
+        self.servo_zero = 2000
+        self.servo_left = self.servo_zero
+        self.servo_right = self.servo_zero
         self.timer = rospy.Timer(rospy.Duration(1/rate), self.update)
 
     def add_variables_to_self(self):
@@ -45,6 +47,12 @@ class SimpleBalanceController(object):
     def tilt_cb(self, msg:SegwayTilt):
         self.tilt = msg
 
+    def shutdown(self):
+        wheel_msg = WheelState()
+        wheel_msg.left_pwm = self.servo_zero
+        wheel_msg.right_pwm = self.servo_zero
+        self.wheel_goal.publish(wheel_msg)
+
     def update(self, event):
         del event
         err:float = self.tilt.radians - self.tilt_goal
@@ -53,20 +61,30 @@ class SimpleBalanceController(object):
         self.error_publisher.publish(err_msg)
 
         # find range of acceptable pwm values around the center, multiply by kp, add, check if valid, execute.
-        proposed_servo_change = (self.kp * err) + 2000
+        proposed_servo_change = (self.kp * err)
         #rospy.loginfo("<" if proposed_servo_change < 2000 else ">")
 
-        self.servo_position = max(self.servo_min_pwm, proposed_servo_change)
-        self.servo_position = min(self.servo_max_pwm, self.servo_position)
+        # positive/negative flip to account for motor flip
+        self.servo_left = self.servo_zero - proposed_servo_change
+        self.servo_right = self.servo_zero + proposed_servo_change
+
+        self.servo_left = max(self.servo_min_pwm, self.servo_left)
+        self.servo_left = min(self.servo_max_pwm, self.servo_left)
+
+        self.servo_right = max(self.servo_min_pwm, self.servo_right)
+        self.servo_right = min(self.servo_max_pwm, self.servo_right)
 
         wheel_msg = WheelState()
-        wheel_msg.left_pwm =  int(self.servo_position)
-        wheel_msg.right_pwm = int(self.servo_position)
+        # negative to account for motor flip
+        wheel_msg.left_pwm =  int(self.servo_left)
+        wheel_msg.right_pwm = int(self.servo_right)
         self.wheel_goal.publish(wheel_msg)
 
 def main():
-    SimpleBalanceController()
+    sbc = SimpleBalanceController()
+
     rospy.loginfo("simple controller ready to go!")
+    rospy.on_shutdown(sbc.shutdown)
     rospy.spin()
     rospy.loginfo("simple controller shutting down")
 

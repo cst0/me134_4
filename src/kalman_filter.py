@@ -102,7 +102,9 @@ class KalmanFilter(object):
             #rospy.loginfo(measurements)
             try:
                 self.kalman.update(np.array(measurements).reshape((len(measurements), 1)))
-            except ValueError:
+            except ValueError as e:
+                rospy.logwarn(str(e))   
+                rospy.logwarn(str(measurements))   
                 rospy.logwarn("tried calling filtering before data received")
                 return  # no measurements yet
             filtered = SegwayTilt()
