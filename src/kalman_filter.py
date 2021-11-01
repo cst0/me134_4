@@ -71,11 +71,11 @@ class KalmanFilter(object):
             except Exception as e:
                 rospy.logerr(e)
 
-        while len(valid_topics) == 0 or valid_topics == None:
-            rospy.logerr("Didn't see any valid topics to subscribe to. Waiting 5 secs before trying again.")
-            time.sleep(5)
+        while len(valid_topics) != len(topic_list):
+            rospy.logerr("Not all topics are sending data (yet). Trying again.")
             valid_topics = self.query_topics(topic_list, msg_type)
 
+        rospy.loginfo("Streaming data from "+str(valid_topics))
         return valid_topics
 
     def delete_input_subscribers(self):
