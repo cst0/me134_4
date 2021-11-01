@@ -2,7 +2,6 @@
 
 import rospy
 import numpy as np
-import time
 from ddynamic_reconfigure_python.ddynamic_reconfigure import DDynamicReconfigure
 from filterpy.kalman import KalmanFilter as kf #type:ignore
 from std_msgs.msg import Empty
@@ -103,7 +102,7 @@ class KalmanFilter(object):
             #rospy.loginfo(measurements)
             try:
                 self.kalman.update(np.array(measurements).reshape((len(measurements), 1)))
-            except ValueError as e:
+            except ValueError:
                 rospy.logwarn("tried calling filtering before data received")
                 return  # no measurements yet
             filtered = SegwayTilt()

@@ -10,7 +10,7 @@ from math import acos, sqrt, cos, sin, asin
 class RangeAnglePublisher(object):
     def __init__(self, query_hz=30):
         self.angle_publisher = rospy.Publisher(
-            "lidar_tilt", SegwayTilt, queue_size=5
+            "range_tilt", SegwayTilt, queue_size=5
         )
         self.query_hz = query_hz
         self.query_timer = None
@@ -36,7 +36,8 @@ class RangeAnglePublisher(object):
             import adafruit_vl53l0x #type:ignore
             i2c = busio.I2C(board.SCL, board.SDA)
             self.vl53 = adafruit_vl53l0x.VL53L0X(i2c)
-            self.vl53.measurement_timing_budget = 200000 # set to 200ms reads. slower but more accurate, and it's still faster than we need
+            self.vl53.measurement_timing_budget = 20000  # fast reads
+            #self.vl53.measurement_timing_budget = 200000 # set to 200ms reads. slower but more accurate
             self.SIMULATION_MODE = False
         except ImportError:
             rospy.logwarn("Unable to import hardware content: assuming simulation mode and proceeding.")
