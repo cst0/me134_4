@@ -35,7 +35,7 @@ class SimpleBalanceController(object):
         self.error_publisher = rospy.Publisher('controller/error', Float32, queue_size=5)
         self.wheel_goal = rospy.Publisher('wheel_state', WheelState, queue_size=5)
 
-        self.last_err = []
+        self.last_err = [0, 0, 0, 0, 0]  # filling with gunk to make sure gradient has something to work with
         self.servo_zero = 2000
         self.servo_left = self.servo_zero
         self.servo_right = self.servo_zero
