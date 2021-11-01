@@ -17,7 +17,12 @@
     </node>
 
     <node name="simple_controller"  pkg="me134" type="simple_controller.py" output="screen" >
-        <param name="Kp" value="50.0" />
+        <param name="kp" value="0.0" />
+        <param name="ki" value="0.0" />
+        <param name="kd" value="0.0" />
+
+        <param name="sample_timeframe" value="3.0" />
+
         <param name="tilt_goal" value="0.165" />
         <param name="servo_min_pwm" value="50" />
         <param name="servo_max_pwm" value="3950" />

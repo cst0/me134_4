@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import rospy
+import numpy as np
 from ddynamic_reconfigure_python.ddynamic_reconfigure import DDynamicReconfigure
 from me134.msg import SegwayTilt, WheelState
 from std_msgs.msg import Float32
@@ -12,8 +13,15 @@ class SimpleBalanceController(object):
         self.ddynrec = DDynamicReconfigure("")
         self.tilt_goal:float = 0.0
         self.kp:float = 1.0
+        self.ki:float = 1.0
+        self.kd:float = 1.0
+        self.sample_timeframe:float = 3.0
         self.ddynrec.add_variable("tilt_goal", "tilt_goal", 0.0, -3.14, 3.14)
         self.ddynrec.add_variable("kp", "kp", 0.0, -2**16, 2**16)
+        self.ddynrec.add_variable("ki", "ki", 0.0, -2**16, 2**16)
+        self.ddynrec.add_variable("kd", "kd", 0.0, -2**16, 2**16)
+
+        self.ddynrec.add_variable("sample_timeframe", "sample_timeframe", 0.0, 3, 2**16)
 
         self.servo_min_pwm:int = 0
         self.servo_max_pwm:int = 0
@@ -27,6 +35,7 @@ class SimpleBalanceController(object):
         self.error_publisher = rospy.Publisher('controller/error', Float32, queue_size=5)
         self.wheel_goal = rospy.Publisher('wheel_state', WheelState, queue_size=5)
 
+        self.last_err = []
         self.servo_zero = 2000
         self.servo_left = self.servo_zero
         self.servo_right = self.servo_zero
@@ -61,7 +70,9 @@ class SimpleBalanceController(object):
         self.error_publisher.publish(err_msg)
 
         # find range of acceptable pwm values around the center, multiply by kp, add, check if valid, execute.
-        proposed_servo_change = (self.kp * err)
+        i = np.trapz(self.last_err)
+        d = np.gradient(self.last_err)
+        proposed_servo_change = (self.kp * err) + (self.ki * i) + (self.kd * d)
         #rospy.loginfo("<" if proposed_servo_change < 2000 else ">")
 
         # positive/negative flip to account for motor flip
@@ -79,6 +90,10 @@ class SimpleBalanceController(object):
         wheel_msg.left_pwm =  int(self.servo_left)
         wheel_msg.right_pwm = int(self.servo_right)
         self.wheel_goal.publish(wheel_msg)
+
+        self.last_err.append(err)
+        if len(self.last_err) > self.ki_timeframe:
+            self.last_err.pop(0)
 
 def main():
     sbc = SimpleBalanceController()
