@@ -60,8 +60,8 @@ class SimpleBalanceController(object):
         self.servo_position = min(self.servo_max_pwm, self.servo_position + proposed_servo_change)
 
         wheel_msg = WheelState()
-        wheel_msg.left_pwm = self.servo_position
-        wheel_msg.right_pwm = self.servo_position
+        wheel_msg.left_pwm =  int(self.servo_position)
+        wheel_msg.right_pwm = int(self.servo_position)
         self.wheel_goal.publish(wheel_msg)
 
 def main():
