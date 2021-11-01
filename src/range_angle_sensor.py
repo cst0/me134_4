@@ -7,9 +7,6 @@ from numpy.random import normal as random  # type:ignore
 
 from math import acos, sqrt, cos, sin, asin
 
-SIMULATION_MODE = True
-
-
 class RangeAnglePublisher(object):
     def __init__(self, query_hz=30):
         self.angle_publisher = rospy.Publisher(
@@ -32,6 +29,19 @@ class RangeAnglePublisher(object):
         self.add_variables_to_self()
         self.ddynrec.start(self.dyn_rec_callback)
 
+        self.SIMULATION_MODE:bool
+        try:
+            import board #type:ignore
+            import busio #type:ignore
+            import adafruit_vl53l0x #type:ignore
+            i2c = busio.I2C(board.SCL, board.SDA)
+            self.vl53 = adafruit_vl53l0x.VL53L0X(i2c)
+            self.vl53.measurement_timing_budget = 200000 # set to 200ms reads. slower but more accurate, and it's still faster than we need
+            self.SIMULATION_MODE = False
+        except ImportError:
+            rospy.logwarn("Unable to import hardware content: assuming simulation mode and proceeding.")
+            self.SIMULATION_MODE = True
+
     def add_variables_to_self(self):
         var_names = self.ddynrec.get_variable_names()
         for var_name in var_names:
@@ -50,9 +60,10 @@ class RangeAnglePublisher(object):
         )
 
     def get_data(self):
-        if SIMULATION_MODE:
+        if self.SIMULATION_MODE:
             return float(random())
-        return 0.0
+        else:
+            return self.vl53.range * 0.001 # convert from mm to m for ros-standard operation
 
     def publish_data(self, event):
         del event
@@ -78,7 +89,8 @@ class RangeAnglePublisher(object):
         alpha = asin((d*sin(theta))/L)
 
         msg = SegwayTilt()
-        msg.computed_angle_rads = alpha
+        msg.source = "lidar"
+        msg.radians = alpha
 
         self.angle_publisher.publish(msg)
 
