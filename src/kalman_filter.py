@@ -2,6 +2,7 @@
 
 import rospy
 import numpy as np
+import time
 from ddynamic_reconfigure_python.ddynamic_reconfigure import DDynamicReconfigure
 from filterpy.kalman import KalmanFilter as kf #type:ignore
 from std_msgs.msg import Empty
@@ -69,6 +70,11 @@ class KalmanFilter(object):
                     valid_topics.append(topic)
             except Exception as e:
                 rospy.logerr(e)
+
+        if len(valid_topics) == 0:
+            rospy.logerr("Didn't see any valid topics to subscribe to. Waiting 5 secs before trying again.")
+            time.sleep(5)
+            return self.query_topics(topic_list, msg_type)
 
         return valid_topics
 
