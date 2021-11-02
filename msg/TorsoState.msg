@@ -5,3 +5,7 @@ float32 chest
 float32 left_elbow
 float32 right_elbow
 float32 head
+float32 tail
+
+float32 DOWN
+float32 UP

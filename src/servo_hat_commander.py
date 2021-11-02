@@ -12,6 +12,8 @@ CHEST       = 8
 LEFT_ELBOW  = 9
 RIGHT_ELBOW = 10
 HEAD        = 11
+TAIL        = 12
+CURL        = 3
 # fmt:on
 
 
@@ -22,8 +24,13 @@ class ServoController(object):
 
         self.servo_min_pwm: int = 0
         self.servo_max_pwm: int = 0
-        self.ddynrec.add_variable("servo_min_pwm", "servo_min_pwm", 0, 0, 2 ** 12)
-        self.ddynrec.add_variable("servo_max_pwm", "servo_max_pwm", 0, 0, 2 ** 12)
+        self.ddynrec.add_variable("servo_min_pwm", "servo_min_pwm", 50, 0, 2 ** 12)
+        self.ddynrec.add_variable("servo_max_pwm", "servo_max_pwm", 3050, 0, 2 ** 12)
+
+        self.tail_up:int=2000
+        self.tail_down:int=2000
+        self.ddynrec.add_variable("tail_down", "tail_down", 2000, 0, 2 ** 12)
+        self.ddynrec.add_variable("tail_up", "tail_up", 2000, 0, 2 ** 12)
 
         self.add_variables_to_self()
         self.ddynrec.start(self.dyn_rec_callback)
@@ -86,6 +93,7 @@ class ServoController(object):
         left_elbow  = self.servo_min_pwm + (((self.servo_max_pwm - self.servo_min_pwm)/2) * left_elbow)
         right_elbow = self.servo_min_pwm + (((self.servo_max_pwm - self.servo_min_pwm)/2) * right_elbow)
         head        = self.servo_min_pwm + (((self.servo_max_pwm - self.servo_min_pwm)/2) * head)
+        tail        = self.tail_down if msg.tail == msg.DOWN else self.tail_up
 
         # send pwm values
         if self.pca is not None:

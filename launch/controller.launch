@@ -1,0 +1,4 @@
+<launch>
+    <node name="joystick_driver" pkg="me134" type="joystick_controller.py"    output="screen" />
+    <node name="joystick_converter" pkg="me134" type="joystick_manual_animatronics.py" output="screen" />
+</launch>

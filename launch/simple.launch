@@ -31,6 +31,8 @@
     <node name="servo_hat_commander"  pkg="me134" type="servo_hat_commander.py" output="screen" >
         <param name="servo_min_pwm" value="50" />
         <param name="servo_max_pwm" value="3950" />
+        <param name="tail_up" value="2000" />
+        <param name="tail_down" value="2000" />
     </node>
 
 
