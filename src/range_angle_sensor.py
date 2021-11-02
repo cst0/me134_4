@@ -29,19 +29,19 @@ class RangeAnglePublisher(object):
         self.add_variables_to_self()
         self.ddynrec.start(self.dyn_rec_callback)
 
-        self.SIMULATION_MODE:bool
-        try:
-            import board #type:ignore
-            import busio #type:ignore
-            import adafruit_vl53l0x #type:ignore
-            i2c = busio.I2C(board.SCL, board.SDA)
-            self.vl53 = adafruit_vl53l0x.VL53L0X(i2c)
-            self.vl53.measurement_timing_budget = 20000  # fast reads
-            #self.vl53.measurement_timing_budget = 200000 # set to 200ms reads. slower but more accurate
-            self.SIMULATION_MODE = False
-        except ImportError:
-            rospy.logwarn("Unable to import hardware content: assuming simulation mode and proceeding.")
-            self.SIMULATION_MODE = True
+        self.SIMULATION_MODE = True
+        #try:
+        #    import board #type:ignore
+        #    import busio #type:ignore
+        #    import adafruit_vl53l0x #type:ignore
+        #    i2c = busio.I2C(board.SCL, board.SDA)
+        #    self.vl53 = adafruit_vl53l0x.VL53L0X(i2c)
+        #    self.vl53.measurement_timing_budget = 20000  # fast reads
+        #    #self.vl53.measurement_timing_budget = 200000 # set to 200ms reads. slower but more accurate
+        #    self.SIMULATION_MODE = False
+        #except ImportError:
+        #    rospy.logwarn("Unable to import hardware content: assuming simulation mode and proceeding.")
+        #    self.SIMULATION_MODE = True
 
     def add_variables_to_self(self):
         var_names = self.ddynrec.get_variable_names()

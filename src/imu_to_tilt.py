@@ -41,7 +41,7 @@ class ImuToTilt(object):
         self.tilt_pitch_pub.publish(Float32(rpy[PITCH]))
         self.tilt_yaw_pub.publish(Float32(rpy[YAW]))
 
-        tilt.radians = rpy[PITCH]
+        tilt.radians = rpy[ROLL]
         tilt.radians_vel = msg.angular_velocity.y
 
         self.tilt_pub.publish(tilt)

@@ -11,7 +11,7 @@ from me134.msg import SegwayTilt
 class KalmanFilter(object):
     def __init__(self, rate=30):
         self.ddynrec = DDynamicReconfigure("")
-        self.kalman_filters = []
+        self.kalman = None
 
         self.segway_tilt_input_topics = ""
         self.ddynrec.add_variable(
@@ -50,15 +50,12 @@ class KalmanFilter(object):
         tilt_topics = self.segway_tilt_input_topics.replace(" ", "").split(",")
         valid_tilt_topics = self.query_topics(tilt_topics, SegwayTilt)
 
-        self.kalman_filters = {}
-        for n in range(0, len(valid_tilt_topics)):
-            kalman = kf(dim_x=2, dim_z=1)
-            kalman.x = np.array([0,0])
-            kalman.F = np.array([[1., 1.],[0.,1.]])
-            kalman.H = np.array([[1., 0.]])
-            kalman.P *= 1000
-            kalman.R = 5
-            self.kalman_filters[valid_tilt_topics[n]] = kalman
+        self.kalman = kf(dim_x=2, dim_z=len(valid_tilt_topics))
+        self.kalman.x = np.array([0,0])
+        self.kalman.F = np.array([[1., 1.],[0.,1.]])
+        self.kalman.H = np.array([[1., 0.]])
+        self.kalman.P *= 1000
+        self.kalman.R = 5
 
         self.delete_input_subscribers()
         self.create_input_subscribers(valid_tilt_topics)
@@ -100,27 +97,20 @@ class KalmanFilter(object):
             if m is not None:
                 measurements.append(m)
 
-        if all(k is not None for k in self.kalman_filters):
-            avg_rads = 0
-            avg_vel = 0
-            avg_count = 0
-            for k in self.kalman_filters.keys(): #type:ignore
-                self.kalman_filters[k].predict()
-                try:
-                    self.kalman_filters[k].update(np.array(measurements).reshape((len(measurements), 1)))
-                    avg_count += 1
-                    avg_rads = self.kalman_filters[k].x[0]
-                    avg_vel = self.kalman_filters[k].x[1]
-                except ValueError:
-                    rospy.logwarn("tried calling filtering before data received")
-                    return  # no measurements yet
-
+        if self.kalman is not None:
+            self.kalman.predict()
+            #rospy.loginfo(measurements)
+            try:
+                self.kalman.update(np.array(measurements).reshape((len(measurements), 1)))
+            except ValueError as e:
+                rospy.logwarn(str(e))   
+                rospy.logwarn(str(measurements))   
+                rospy.logwarn("tried calling filtering before data received")
+                return  # no measurements yet
             filtered = SegwayTilt()
             filtered.source = 'filter'
-
-            #fukit, usin an avg
-            filtered.radians = avg_rads / avg_count
-            filtered.radians_vel = avg_vel / avg_count
+            filtered.radians = self.kalman.x[0]
+            filtered.radians_vel = self.kalman.x[1]
             self.filtered_pub.publish(filtered)
 
     def shutdown(self):

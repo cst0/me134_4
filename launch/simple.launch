@@ -6,11 +6,11 @@
     <node name="imu_node" pkg="me134" type="imu_node.py"    output="screen" />
     <node name="imu_tilt" pkg="me134" type="imu_to_tilt.py" output="screen" />
 
-    <node name="range_tilt"         pkg="me134" type="range_angle_sensor.py" output="screen" >
+    <!--node name="range_tilt"         pkg="me134" type="range_angle_sensor.py" output="screen" >
         <param name="sensor_height" value="0.022"/>
         <param name="sensor_xdist"  value="0.022"/>
         <param name="sensor_angle"  value="0.785"/>
-    </node>
+    </node-->
 
     <node name="kalman_filter"    pkg="me134" type="kalman_filter.py" output="screen" >
         <param name="segway_tilt_input_topics" value="imu_tilt" />

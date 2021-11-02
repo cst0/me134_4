@@ -7,5 +7,7 @@ float32 right_elbow
 float32 head
 float32 tail
 
+bool lock_wheels
+
 float32 DOWN
 float32 UP

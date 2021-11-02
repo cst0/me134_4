@@ -12,8 +12,6 @@ CHEST       = 8
 LEFT_ELBOW  = 9
 RIGHT_ELBOW = 10
 HEAD        = 11
-TAIL        = 12
-CURL        = 3
 # fmt:on
 
 
@@ -22,15 +20,11 @@ class ServoController(object):
         rospy.init_node("ServoController", anonymous=False)
         self.ddynrec = DDynamicReconfigure("")
 
+        self.lock_wheels = False
         self.servo_min_pwm: int = 0
         self.servo_max_pwm: int = 0
-        self.ddynrec.add_variable("servo_min_pwm", "servo_min_pwm", 50, 0, 2 ** 12)
-        self.ddynrec.add_variable("servo_max_pwm", "servo_max_pwm", 3050, 0, 2 ** 12)
-
-        self.tail_up:int=2000
-        self.tail_down:int=2000
-        self.ddynrec.add_variable("tail_down", "tail_down", 2000, 0, 2 ** 12)
-        self.ddynrec.add_variable("tail_up", "tail_up", 2000, 0, 2 ** 12)
+        self.ddynrec.add_variable("servo_min_pwm", "servo_min_pwm", 0, 0, 2 ** 12)
+        self.ddynrec.add_variable("servo_max_pwm", "servo_max_pwm", 0, 0, 2 ** 12)
 
         self.add_variables_to_self()
         self.ddynrec.start(self.dyn_rec_callback)
@@ -69,9 +63,14 @@ class ServoController(object):
         return config
 
     def wheel_state_cb(self, msg: WheelState):
+        if self.lock_wheels:
+            msg.left_pwm = 2000
+            msg.right_pwm = 2000
         if self.pca is not None:
-            self.pca.channels[LEFT_WHEEL].duty_cycle = msg.left_pwm
-            self.pca.channels[RIGHT_WHEEL].duty_cycle = msg.right_pwm
+            left_pwm  = min(self.servo_max_pwm, max(self.servo_min_pwm, msg.left_pwm))
+            right_pwm = min(self.servo_max_pwm, max(self.servo_min_pwm, msg.right_pwm))
+            self.pca.channels[LEFT_WHEEL].duty_cycle = left_pwm
+            self.pca.channels[RIGHT_WHEEL].duty_cycle = right_pwm
         elif self.simulation_mode:
             rospy.loginfo_once(
                 "[MotorController PWM] " + str(msg.left_pwm) + ", " + str(msg.right_pwm)
@@ -88,12 +87,18 @@ class ServoController(object):
         left_elbow  = max(-1, min(1, msg.left_elbow))
         right_elbow = max(-1, min(1, msg.right_elbow))
         head        = max(-1, min(1, msg.head))
+
+        # hack to make sure that if anything is happening with torso, don't move wheels
+        if msg.lock_wheel
+            self.lock_wheels = True
+        else:
+            self.lock_wheels = False
+
         # convert each of these -1 to 1 values into the range of pwm values
-        chest       = self.servo_min_pwm + (((self.servo_max_pwm - self.servo_min_pwm)/2) * chest)
-        left_elbow  = self.servo_min_pwm + (((self.servo_max_pwm - self.servo_min_pwm)/2) * left_elbow)
-        right_elbow = self.servo_min_pwm + (((self.servo_max_pwm - self.servo_min_pwm)/2) * right_elbow)
-        head        = self.servo_min_pwm + (((self.servo_max_pwm - self.servo_min_pwm)/2) * head)
-        tail        = self.tail_down if msg.tail == msg.DOWN else self.tail_up
+        chest = ((chest + 1) / 2) * (self.servo_max_pwm - self.servo_min_pwm)
+        left_elbow = ((left_elbow + 1) / 2) * (self.servo_max_pwm - self.servo_min_pwm)
+        right_elbow = ((right_elbow + 1) / 2) * (self.servo_max_pwm - self.servo_min_pwm)
+        head = ((head + 1) / 2) * (self.servo_max_pwm - self.servo_min_pwm)
 
         # send pwm values
         if self.pca is not None:
