@@ -89,7 +89,7 @@ class ServoController(object):
         head        = max(-1, min(1, msg.head))
 
         # hack to make sure that if anything is happening with torso, don't move wheels
-        if msg.lock_wheel
+        if msg.lock_wheels:
             self.lock_wheels = True
         else:
             self.lock_wheels = False
@@ -99,6 +99,11 @@ class ServoController(object):
         left_elbow = ((left_elbow + 1) / 2) * (self.servo_max_pwm - self.servo_min_pwm)
         right_elbow = ((right_elbow + 1) / 2) * (self.servo_max_pwm - self.servo_min_pwm)
         head = ((head + 1) / 2) * (self.servo_max_pwm - self.servo_min_pwm)
+
+        chest = max(self.servo_min_pwm, min(self.servo_max_pwm, chest))
+        left_elbow = max(self.servo_min_pwm, min(self.servo_max_pwm, left_elbow))
+        right_elbow = max(self.servo_min_pwm, min(self.servo_max_pwm, right_elbow))
+        head = max(self.servo_min_pwm, min(self.servo_max_pwm, head))
 
         # send pwm values
         if self.pca is not None:
