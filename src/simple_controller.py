@@ -71,7 +71,7 @@ class SimpleBalanceController(object):
 
         # find range of acceptable pwm values around the center, multiply by kp, add, check if valid, execute.
         i = np.trapz(self.last_err)
-        d = np.gradient(self.last_err)
+        d = np.gradient(self.last_err)[0]
         proposed_servo_change = (self.kp * err) + (self.ki * i) + (self.kd * d)
         #rospy.loginfo("<" if proposed_servo_change < 2000 else ">")
 
@@ -92,7 +92,7 @@ class SimpleBalanceController(object):
         self.wheel_goal.publish(wheel_msg)
 
         self.last_err.append(err)
-        if len(self.last_err) > self.ki_timeframe:
+        if len(self.last_err) > self.sample_timeframe:
             self.last_err.pop(0)
 
 def main():
